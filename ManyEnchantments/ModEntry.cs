@@ -287,6 +287,7 @@ namespace ManyEnchantments
             try
             {
                 BaseEnchantment enchantment = BaseEnchantment.GetEnchantmentFromItem(__instance, item);
+                // This gets displayed twice because the game does it once to display the "Result" item in the menu.
                 ModMonitor.Log($"Adding {(enchantment != null ? (enchantment.IsForge() ? "forge enchantment" : enchantment.GetDisplayName()) : "null enchantment")} from item {(item != null ? item.Name : "null")} to tool {__instance.Name}", LogLevel.Debug);
                 if (enchantment != null && enchantment is DiamondEnchantment)
                 {
