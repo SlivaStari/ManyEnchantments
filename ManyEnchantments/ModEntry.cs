@@ -26,8 +26,8 @@ namespace ManyEnchantments
 
         private void OnGameLaunched(object sender, EventArgs e)
         {
+            // Override Tool & ForgeMenu functionality
             var harmony = HarmonyInstance.Create("Stari.ManyEnchantments");
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tool), nameof(Tool.AddEnchantment)),
                 prefix: new HarmonyMethod(typeof(ModEntry), nameof(ModEntry.AddEnchantment_Prefix))
@@ -222,6 +222,7 @@ namespace ManyEnchantments
         [HarmonyPrefix]
         public static bool IsValidCraftIngredient_Prefix(StardewValley.Menus.ForgeMenu __instance, Item item, ref bool __result)
         {
+            // Override is valid ingredient for the case when the tool is enchanted fully. Base game assumes that a tool will always be enchantable, as every tool has more than one enchantment.
             try
             {
                 if (IsEnchantedOrEnchantable(item))
@@ -240,6 +241,7 @@ namespace ManyEnchantments
         [HarmonyPrefix]
         public static bool HighlightItems_Prefix(StardewValley.Menus.ForgeMenu __instance, Item i, ref bool __result)
         {
+            // Override highlight items for the case when the tool is enchanted fully. Base game assumes that a tool will always be enchantable, as every tool has more than one enchantment.
             try
             {
                 if (IsEnchantedOrEnchantable(i))
@@ -262,6 +264,7 @@ namespace ManyEnchantments
             {
                 if (__instance.rightIngredientSpot.item == null && __instance.leftIngredientSpot.item != null && __instance.leftIngredientSpot.item is MeleeWeapon)
                 {
+                    // If enchanted, also is valid to unforge.
                     foreach (BaseEnchantment enchantment in (__instance.leftIngredientSpot.item as MeleeWeapon).enchantments) {
                         if (!enchantment.IsForge() && !enchantment.IsSecondaryEnchantment())
                         {
@@ -287,6 +290,7 @@ namespace ManyEnchantments
                 ModMonitor.Log($"Adding {(enchantment != null ? (enchantment.IsForge() ? "forge enchantment" : enchantment.GetDisplayName()) : "null enchantment")} from item {(item != null ? item.Name : "null")} to tool {__instance.Name}", LogLevel.Debug);
                 if (enchantment != null && enchantment is DiamondEnchantment)
                 {
+                    // Diamond Enchantment is now replaced with up to 3 other random enchantments. Still get a slight discount on the cost.
                     if (GetValidForgeEnchantmentsForTool(__instance).Count <= 0)
                     {
                         __result = false;
